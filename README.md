@@ -14,11 +14,39 @@ Economy App is designed to make personal finance management conversational and i
 - **Financial Visualizations**: Comprehensive graphs and charts showing your economic trends
 - **AI Insights & Advice**: Get personalized financial insights, budgeting recommendations, and spending analysis
 
-## Goals
+## Project Structure
 
-- **Web Application**: Initial deployment as a website for rapid launch
-- **Mobile Application**: Future goal to build a mobile application
-- **Shared Backend**: Architecture designed to reuse backend code across both web and mobile platforms
+This is a monorepo managed with Bun workspaces, containing:
+
+- **`packages/backend`**: Backend code (no API server)
+- **`apps/web`**: Web application (minimal setup)
+- **`apps/mobile`**: Mobile application (minimal setup)
+
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh) (>= 1.0.0) installed on your system
+
+### Installation
+
+```bash
+# Install all dependencies for all workspaces
+bun install
+```
+
+### Development
+
+```bash
+# Install all dependencies
+bun install
+```
+
+## Individual Package Documentation
+
+- [Backend Package](./packages/backend/README.md)
+- [Web App](./apps/web/README.md)
+- [Mobile App](./apps/mobile/README.md)
 
 ## Development Roadmap
 

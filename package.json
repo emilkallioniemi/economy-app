@@ -1,0 +1,12 @@
+{
+  "name": "economy-app",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}
