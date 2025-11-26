@@ -40,47 +40,49 @@ const createExpenseSchema = z.object({
     ),
 });
 
-export const createExpenseTool = tool({
-  description:
-    "Create a new expense entry (fixed recurring expense or dynamic one-time expense)",
-  inputSchema: createExpenseSchema,
-  execute: async (params) => {
-    const data: {
-      amount: string;
-      description: string;
-      type: "fixed" | "dynamic";
-      category: string | null;
-      recurrencePattern?: "daily" | "weekly" | "monthly" | "yearly";
-      startDate?: string;
-      endDate?: string | null;
-      expenseDate?: string;
-    } = {
-      amount: params.amount.toString(),
-      description: params.description,
-      type: params.type,
-      category: params.category || null,
-    };
+export function createExpenseTool(userId: string) {
+  return tool({
+    description:
+      "Create a new expense entry (fixed recurring expense or dynamic one-time expense)",
+    inputSchema: createExpenseSchema,
+    execute: async (params) => {
+      const data: {
+        amount: string;
+        description: string;
+        type: "fixed" | "dynamic";
+        category: string | null;
+        recurrencePattern?: "daily" | "weekly" | "monthly" | "yearly";
+        startDate?: string;
+        endDate?: string | null;
+        expenseDate?: string;
+      } = {
+        amount: params.amount.toString(),
+        description: params.description,
+        type: params.type,
+        category: params.category || null,
+      };
 
-    if (params.type === "fixed") {
-      if (!params.recurrencePattern || !params.startDate) {
-        throw new Error(
-          "Fixed expenses require recurrencePattern and startDate"
-        );
+      if (params.type === "fixed") {
+        if (!params.recurrencePattern || !params.startDate) {
+          throw new Error(
+            "Fixed expenses require recurrencePattern and startDate"
+          );
+        }
+        data.recurrencePattern = params.recurrencePattern;
+        data.startDate = params.startDate;
+        data.endDate = params.endDate || null;
+      } else {
+        data.expenseDate =
+          params.expenseDate || new Date().toISOString().split("T")[0];
       }
-      data.recurrencePattern = params.recurrencePattern;
-      data.startDate = params.startDate;
-      data.endDate = params.endDate || null;
-    } else {
-      data.expenseDate =
-        params.expenseDate || new Date().toISOString().split("T")[0];
-    }
 
-    const result = await createExpense(data);
-    return {
-      success: true,
-      expense: result,
-      message: `Successfully created ${params.type} expense: ${params.description} for $${params.amount}`,
-    };
-  },
-});
+      const result = await createExpense(userId, data);
+      return {
+        success: true,
+        expense: result,
+        message: `Successfully created ${params.type} expense: ${params.description} for $${params.amount}`,
+      };
+    },
+  });
+}
 

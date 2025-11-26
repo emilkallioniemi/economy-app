@@ -40,48 +40,50 @@ const createIncomeSchema = z.object({
     ),
 });
 
-export const createIncomeTool = tool({
-  description:
-    "Create a new income entry (fixed recurring income or dynamic one-time income)",
-  inputSchema: createIncomeSchema,
-  execute: async (params) => {
-    const { amount, description, type, category, ...rest } = params;
-    const data: {
-      amount: string;
-      description: string;
-      type: "fixed" | "dynamic";
-      category: string | null;
-      recurrencePattern?: "daily" | "weekly" | "monthly" | "yearly";
-      startDate?: string;
-      endDate?: string | null;
-      incomeDate?: string;
-    } = {
-      amount: amount.toString(),
-      description,
-      type,
-      category: category || null,
-    };
+export function createIncomeTool(userId: string) {
+  return tool({
+    description:
+      "Create a new income entry (fixed recurring income or dynamic one-time income)",
+    inputSchema: createIncomeSchema,
+    execute: async (params) => {
+      const { amount, description, type, category, ...rest } = params;
+      const data: {
+        amount: string;
+        description: string;
+        type: "fixed" | "dynamic";
+        category: string | null;
+        recurrencePattern?: "daily" | "weekly" | "monthly" | "yearly";
+        startDate?: string;
+        endDate?: string | null;
+        incomeDate?: string;
+      } = {
+        amount: amount.toString(),
+        description,
+        type,
+        category: category || null,
+      };
 
-    if (type === "fixed") {
-      if (!rest.recurrencePattern || !rest.startDate) {
-        throw new Error(
-          "Fixed incomes require recurrencePattern and startDate"
-        );
+      if (type === "fixed") {
+        if (!rest.recurrencePattern || !rest.startDate) {
+          throw new Error(
+            "Fixed incomes require recurrencePattern and startDate"
+          );
+        }
+        data.recurrencePattern = rest.recurrencePattern;
+        data.startDate = rest.startDate;
+        data.endDate = rest.endDate || null;
+      } else {
+        data.incomeDate =
+          rest.incomeDate || new Date().toISOString().split("T")[0];
       }
-      data.recurrencePattern = rest.recurrencePattern;
-      data.startDate = rest.startDate;
-      data.endDate = rest.endDate || null;
-    } else {
-      data.incomeDate =
-        rest.incomeDate || new Date().toISOString().split("T")[0];
-    }
 
-    const result = await createIncome(data);
-    return {
-      success: true,
-      income: result,
-      message: `Successfully created ${type} income: ${description} for $${amount}`,
-    };
-  },
-});
+      const result = await createIncome(userId, data);
+      return {
+        success: true,
+        income: result,
+        message: `Successfully created ${type} income: ${description} for $${amount}`,
+      };
+    },
+  });
+}
 

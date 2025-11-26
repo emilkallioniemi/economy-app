@@ -27,9 +27,23 @@ export const recurrencePatternEnum = pgEnum("recurrence_pattern", [
   "yearly",
 ]);
 
+// Users table - synced from Clerk
+export const users = pgTable("users", {
+  id: text("id").primaryKey(), // Clerk's userId
+  email: text("email").notNull(),
+  firstName: text("first_name"),
+  lastName: text("last_name"),
+  imageUrl: text("image_url"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 // Incomes table
 export const incomes = pgTable("incomes", {
   id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }), // Foreign key
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   description: text("description").notNull(),
   type: entryTypeEnum("type").notNull(),
@@ -49,6 +63,9 @@ export const incomes = pgTable("incomes", {
 // Expenses table
 export const expenses = pgTable("expenses", {
   id: serial("id").primaryKey(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }), // Foreign key
   amount: decimal("amount", { precision: 10, scale: 2 }).notNull(),
   description: text("description").notNull(),
   type: entryTypeEnum("type").notNull(),
