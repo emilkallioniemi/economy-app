@@ -1,16 +1,13 @@
-import { openai } from '@ai-sdk/openai';
-import { convertToModelMessages, streamText } from 'ai';
+import { financeAgent } from "@/lib/agents/finance-agent";
+import { createAgentUIStreamResponse } from "ai";
 
-export const runtime = 'edge';
+export const runtime = "nodejs";
 
-export async function POST(req: Request) {
-  const { messages } = await req.json();
+export async function POST(request: Request) {
+  const { messages } = await request.json();
 
-  const result = await streamText({
-    model: openai('gpt-4o-mini'),
-    messages: convertToModelMessages(messages),
+  return createAgentUIStreamResponse({
+    agent: financeAgent,
+    messages,
   });
-
-  return result.toUIMessageStreamResponse();
 }
-
