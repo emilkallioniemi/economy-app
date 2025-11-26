@@ -1,26 +1,27 @@
-import { db, client } from "./database";
-import { sql } from "drizzle-orm";
+// Export database connection
+export { db, client } from "./database";
 
-async function main() {
-  try {
-    console.log("Connecting to database...");
+// Export schema
+export {
+  incomes,
+  expenses,
+  entryTypeEnum,
+  recurrencePatternEnum,
+} from "./schema";
 
-    // Test database connection with a simple query
-    const result = await db.execute(
-      sql`SELECT NOW() as current_time, version() as pg_version`
-    );
+// Export query functions
+export {
+  createIncome,
+  createExpense,
+  getIncomes,
+  getExpenses,
+} from "./queries";
 
-    console.log("✅ Database connection successful!");
-    console.log("Current time:", result[0].current_time);
-    console.log("PostgreSQL version:", result[0].pg_version);
+// Export types
+import type { InferSelectModel, InferInsertModel } from "drizzle-orm";
+import type { incomes, expenses } from "./schema";
 
-    // Close the connection
-    await client.end();
-    console.log("Database connection closed.");
-  } catch (error) {
-    console.error("❌ Database connection failed:", error);
-    process.exit(1);
-  }
-}
-
-main();
+export type Income = InferSelectModel<typeof incomes>;
+export type Expense = InferSelectModel<typeof expenses>;
+export type NewIncome = InferInsertModel<typeof incomes>;
+export type NewExpense = InferInsertModel<typeof expenses>;
